@@ -1,0 +1,11 @@
+//
+//  Shared.xcconfig
+//  CICD_WorkShop
+//
+//  Created by Abdallah ismail on 10/07/2024.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+SHARED_BUILD_NUMBER = 1.1.1.1
+SHARED_VERSION_NUMBER = 2.2.2.2

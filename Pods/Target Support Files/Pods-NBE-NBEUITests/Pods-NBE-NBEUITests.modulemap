@@ -1,0 +1,6 @@
+framework module Pods_NBE_NBEUITests {
+  umbrella header "Pods-NBE-NBEUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}

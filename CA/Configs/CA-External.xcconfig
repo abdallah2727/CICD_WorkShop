@@ -1,0 +1,15 @@
+//
+//  CA-External.xcconfig
+//  CICD_WorkShop
+//
+//  Created by Abdallah ismail on 10/07/2024.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+#include "Common/Shared Config/Shared-External.xcconfig"
+#include "Pods/Target Support Files/Pods-CA/Pods-CA.external.xcconfig"
+BASE_URL = https/S()/www.CA-External.com
+GOOGLE_API_KEY = ""
+PRODUCT_BUNDLE_IDENTIFIER = com.CA.PhoneCash.test
+DISPLAY_NAME = CA-EX

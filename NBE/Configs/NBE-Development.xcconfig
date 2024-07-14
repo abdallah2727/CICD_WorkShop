@@ -1,0 +1,18 @@
+//
+//  NBE-Development.xcconfig
+//  CICD_WorkShop
+//
+//  Created by Abdallah ismail on 10/07/2024.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+#include "Common/Shared Config/Shared-Development.xcconfig"
+#include "Pods/Target Support Files/Pods-NBE/Pods-NBE.development.xcconfig"
+BASE_URL = https/S()/www.NBE-Development.com
+GOOGLE_API_KEY = ""
+PRODUCT_BUNDLE_IDENTIFIER = com.nbe.PhoneCash.test
+DISPLAY_NAME = NBE-DEV
+
+
+
