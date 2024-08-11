@@ -11,5 +11,5 @@
 #include "Pods/Target Support Files/Pods-CA/Pods-CA.external.xcconfig"
 BASE_URL = https/S()/www.CA-External.com
 GOOGLE_API_KEY = ""
-PRODUCT_BUNDLE_IDENTIFIER = com.CA.PhoneCash.test
+PRODUCT_BUNDLE_IDENTIFIER = com.CA.Wallet.test
 DISPLAY_NAME = CA-EX

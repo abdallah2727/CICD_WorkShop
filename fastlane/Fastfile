@@ -14,16 +14,127 @@
 # update_fastlane
 
 default_platform(:ios)
-
+remote_build_number = "0"
+old_build_number = "0"
+new_build_number = "0"
 platform :ios do
-  desc "Build Project"
-  lane :build_project do
+  before_all do 
+    load_shared_env()
+    clear_all_paths()
+  end 
+  desc "Archive Project"
+  lane :archive_project do |options|
+    schemeName = options[:schemeName]
+    schemeNameArr = schemeName.split('-')
+    gitAuth = ENV["PROJECT_GIT_AUTH_TOKEN"]
+    load_scheme_env(bankName: schemeNameArr[0], schemeType: schemeNameArr[1])
+    match_repoURL = ENV["MATCH_CERTIFICATES_GIT_URL"]
+    match_type = ENV["SIGNING_TYPE"]
+    bundle_id = ENV["BUNDLE_IDENTIFIERS"]
+    keychain_name = ENV["KEYCHAIN_NAME"]
+    keychain_password = ENV["KEYCHAIN_PASSWORD"]
+    install_pods
+    create_temp_keychain()
+    match(
+      git_url: match_repoURL,
+      type: match_type,
+      app_identifier: bundle_id,
+      git_basic_authorization: Base64.strict_encode64(gitAuth),
+      keychain_name: keychain_name,
+      keychain_password: keychain_password,
+    )
+    build_number_increment_remotly()
+    increment_local_build_number()
     gym(
       workspace: "CICD_WorkShop.xcworkspace",
-      scheme: "CA-Development",
-      skip_archive: true,
-      xcargs: "CODE_SIGNING_ALLOWED=NO"
+      scheme: schemeName
+    )
+    push_incremented_build_number()
+    delete_temp_keychain()
+  end
+  
+  desc "Install CocoaPods dependencies"
+  private_lane :install_pods do
+    cocoapods(
+      clean_install: true,
+      verbose: true
     )
   end
+
+  desc "Build Project"
+  lane :build_project do |options|
+    schemeName = options[:schemeName]
+    install_pods
+    gym(
+      workspace: "CICD_WorkShop.xcworkspace",
+      scheme: schemeName
+    )
+  end
+
+  
+
+  desc "Create new temp keychain" 
+  private_lane :create_temp_keychain do
+    keychain_name = ENV["KEYCHAIN_NAME"]
+    keychain_password = ENV["KEYCHAIN_PASSWORD"]
+    create_keychain(
+      name: keychain_name, 
+      password: keychain_password, 
+      default_keychain: false, 
+      unlock: true,
+      timeout: 3600
+    )
+  end
+
+  desc "Delete temp keychain"
+  private_lane :delete_temp_keychain do
+    keychain_name = ENV["KEYCHAIN_NAME"]
+    delete_keychain(name: keychain_name)
+  end
+
+  desc "Load shared env"
+  private_lane :load_shared_env do
+    Dotenv.load ".env.shared"
+  end  
+  desc "get build number remotly"
+  private_lane :build_number_increment_remotly do 
+    sh("git clone https://#{ENV["PROJECT_GIT_AUTH_TOKEN"]}@#{ENV["VERSION_BUILD_NUMBERS_GIT_URL"]} ./../incrementRepo")
+    incrementNumber = File.read("./../incrementRepo/buildNumber.txt")
+    remote_build_number = incrementNumber.to_i + 1
+  end
+  desc "increment build number localy"
+  private_lane :increment_local_build_number do 
+    old_build_number = get_xcconfig_value(
+      path: ENV["PROJECT_SHARED_CONFIG_FILE_PATH"],
+      name: 'SHARED_BUILD_NUMBER'
+    )
+    oldBuildArray = old_build_number.split('.')
+    newBuildNumberArray = "#{oldBuildArray[0]}.#{oldBuildArray[1]}.#{oldBuildArray[2]}.#{remote_build_number}"
+    update_xcconfig_value(
+      path: ENV["PROJECT_SHARED_CONFIG_FILE_PATH"],
+      name: 'SHARED_BUILD_NUMBER',
+      value: newBuildNumberArray
+    )
+
+  end
+ 
+  desc "push incremented build number"
+  private_lane :push_incremented_build_number do 
+    File.write("./../incrementRepo/buildNumber.txt", "#{remote_build_number}")
+    sh("cd ./../incrementRepo && git add . && git commit -m 'increment build number by CI/CD' && git push -u origin main")
+  end
+
+  desc "Load suitable env according to scheme"
+  private_lane :load_scheme_env do |options|
+    bankName = options[:bankName]
+    schemeType = options[:schemeType]
+    Dotenv.load ".env.#{bankName}#{schemeType}"
+  end  
+
+  desc "Remove all used directories"
+  private_lane :clear_all_paths do
+    sh("rm -rf ./../build/")
+    sh("rm -rf ./../incrementRepo/")
+  end    
 end
 
