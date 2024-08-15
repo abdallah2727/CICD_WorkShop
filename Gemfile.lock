@@ -159,6 +159,8 @@ GEM
       xcodeproj (>= 1.13.0, < 2.0.0)
       xcpretty (~> 0.3.0)
       xcpretty-travis-formatter (>= 0.0.3, < 2.0.0)
+    fastlane-plugin-appcenter (2.1.2)
+    fastlane-plugin-teams_bot (1.0.0)
     fastlane-plugin-xcconfig (2.1.0)
     ffi (1.17.0)
     ffi (1.17.0-arm64-darwin)
@@ -285,6 +287,8 @@ DEPENDENCIES
   cocoapods (~> 1.15.2)
   dotenv (= 2.8.1)
   fastlane (= 2.220.0)
+  fastlane-plugin-appcenter
+  fastlane-plugin-teams_bot
   fastlane-plugin-xcconfig
 
 BUNDLED WITH

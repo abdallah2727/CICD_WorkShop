@@ -49,10 +49,15 @@ platform :ios do
       workspace: "CICD_WorkShop.xcworkspace",
       scheme: schemeName
     )
+    upload_to_appcenter(appName: schemeNameArr[0]) 
     push_incremented_build_number()
+    reset_local_build_number()
     delete_temp_keychain()
   end
-  
+  desc "send message to teams for release"
+  private_lane :send_message_to_teams do |options|
+    appName = options|appName|
+  end
   desc "Install CocoaPods dependencies"
   private_lane :install_pods do
     cocoapods(
@@ -115,6 +120,33 @@ platform :ios do
       name: 'SHARED_BUILD_NUMBER',
       value: newBuildNumberArray
     )
+
+  end
+  desc "reset build number localy"
+  private_lane :reset_local_build_number do 
+    update_xcconfig_value(
+      path: ENV["PROJECT_SHARED_CONFIG_FILE_PATH"],
+      name: 'SHARED_BUILD_NUMBER',
+      value: "#{old_build_number}"
+    )
+  end  
+  desc "upload to app center"
+  private_lane :upload_to_appcenter  do |options|
+     appName = options[:appName]
+
+     appcenter_upload(
+      api_token: ENV["Api_Token_Appcenter"],
+      owner_name: "abdallahismail",
+      owner_type: "user",
+      app_name: "#{appName}",
+      file: "./build/#{appName}.ipa" ,
+      notify_testers: false,
+      release_notes: "Hello from Abdallah",
+      destination_type: "group",
+      destinations: "External-Public-Access-Group"
+     )
+     uploadResponse = Actions.lane_context [SharedValues::APPCENTER_BUILD_INFORMATION]
+   
 
   end
  
